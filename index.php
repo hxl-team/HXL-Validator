@@ -5,18 +5,17 @@ set_include_path('Classes/');
 require_once 'EasyRdf.php';
 require_once 'html_tag_helpers.php';
 
-foreach ($POST as $key => $value) {
-	echo $key.': '.$value;
-}
+$rdf = file_get_contents('php://input');
 
-if(!isset($_POST['rdf'])){
-	die("Nothing to validate. Please make a POST request to this script and submit some RDF code in a POST parameter called 'rdf'.");
+if(!isset($rdf)){
+	die("Nothing to validate. Please make a POST request to this script and submit some RDF code in a POST parameter called 'rdf'.
+");
 }
 
 // load the data to check into a graph:
 $test = new EasyRdf_Graph();
 $ttlparser = new EasyRdf_Parser_Turtle();
-$ttlparser->parse($test, $_POST['rdf'], 'turtle', 'http://example.graph.org/hxl');
+$ttlparser->parse($test, $rdf, 'turtle', 'http://example.graph.org/hxl');
 /* $ttlparser->parse($test, '@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> . 
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . 
 @prefix owl:  <http://www.w3.org/2002/07/owl#> . 
