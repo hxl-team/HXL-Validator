@@ -29,6 +29,8 @@ if($rdf == ""){
 // load the data to check into a graph:
 $test = new EasyRdf_Graph();
 $ttlparser = new EasyRdf_Parser_Turtle();
+
+// in case the parsing fails, return an error:
 try{
 	$ttlparser->parse($test, $rdf, 'turtle', 'http://example.graph.org/hxl');
 }catch(Exception $e){
@@ -45,7 +47,7 @@ try{
 // first find all types used in the data, so that we know what we have to take care of:
 $types = array();
 foreach ($test->resourcesMatching('rdf:type') as $resource) {
-	$missing = false;
+	$thisMissing = false;
 
 	$return = '<p>Missing mandatory properties for '.$resource.':</p>';
 
@@ -58,12 +60,12 @@ SELECT ?property WHERE {
 
 	foreach ($mandatoryProps as $prop) {
 		if(!$test->hasProperty($resource, $prop->property)){
-			$missing = true;
+			$thisMissing = true;
 			$return .= "<li>".$prop->property."</li>\n";
 		}        
     }
 
-    if($missing){
+    if($thisMissing){
     	echo $return;
     }
 
