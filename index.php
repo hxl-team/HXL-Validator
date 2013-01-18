@@ -10,16 +10,18 @@ $msg = "Nothing to validate. Please make a POST request to this script and submi
 if($_GET["format"] == "json"){
 	header('Content-type: application/json');
 }else{
-	header('Content-type: text/<html>');
+	header('Content-type: text/html');
 }
 
 $rdf = file_get_contents('php://input');
 
 if($rdf == ""){
 	if($_GET["format"] == "json"){
-		die('{"message": "'.$msg.'"}');
+		die('{"message": "'.$msg.'"}
+');
 	}else{
-		die('<div class="alert alert-error">'.$msg.'</div>');	
+		die('<div class="alert alert-error">'.$msg.'</div>
+');	
 	}
 	
 }
@@ -27,7 +29,18 @@ if($rdf == ""){
 // load the data to check into a graph:
 $test = new EasyRdf_Graph();
 $ttlparser = new EasyRdf_Parser_Turtle();
-$ttlparser->parse($test, $rdf, 'turtle', 'http://example.graph.org/hxl');
+try{
+	$ttlparser->parse($test, $rdf, 'turtle', 'http://example.graph.org/hxl');
+}catch(Exception $e){
+	if($_GET["format"] == "json"){
+		die('{"message": "'.$e->getMessage().'"}
+');
+	}else{
+		die('<div class="alert alert-error">'.$e->getMessage().'</div>
+');	
+	}
+}
+
 
 // first find all types used in the data, so that we know what we have to take care of:
 $types = array();
