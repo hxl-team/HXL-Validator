@@ -5,11 +5,19 @@ set_include_path('Classes/');
 require_once 'EasyRdf.php';
 require_once 'html_tag_helpers.php';
 
+foreach ($POST as $key => $value) {
+	echo $key.': '.$value;
+}
+
+if(!isset($_POST['rdf'])){
+	die("Nothing to validate. Please make a POST request to this script and submit some RDF code in a POST parameter called 'rdf'.");
+}
+
 // load the data to check into a graph:
 $test = new EasyRdf_Graph();
 $ttlparser = new EasyRdf_Parser_Turtle();
-//$ttlparser->parse($test, $_POST['check'], 'turtle', 'http://example.graph.org/hxl');
-$ttlparser->parse($test, '@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> . 
+$ttlparser->parse($test, $_POST['rdf'], 'turtle', 'http://example.graph.org/hxl');
+/* $ttlparser->parse($test, '@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> . 
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . 
 @prefix owl:  <http://www.w3.org/2002/07/owl#> . 
 @prefix foaf: <http://xmlns.com/foaf/0.1/> . 
@@ -33,13 +41,14 @@ $ttlparser->parse($test, '@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax
 <http://hxl.humanitarianresponse.info/data/refugeesandasylumseekers/female/ages_5-11> rdf:type hxl:RefugeesAsylumSeekers .
 <http://hxl.humanitarianresponse.info/data/refugeesandasylumseekers/female/ages_5-11> hxl:sexCategory <http://hxl.humanitarianresponse.info/data/sexcategories/female> .
 <http://hxl.humanitarianresponse.info/data/refugeesandasylumseekers/female/ages_5-11> hxl:ageGroup <http://hxl.humanitarianresponse.info/data/agegroups/unhcr/ages_5-11> .', 
-'turtle', 'http://example.graph.org/hxl');
+'turtle', 'http://example.graph.org/hxl'); */
 
 // first find all types used in the data, so that we know what we have to take care of:
 $types = array();
 foreach ($test->resourcesMatching('rdf:type') as $resource) {
+	$missing = false;
 
-	echo '<p>Missing mandatory properties for '.$resource.':</p>';
+	$return = '<p>Missing mandatory properties for '.$resource.':</p>';
 
 	$mandatoryProps = sparqlQuery('
 SELECT ?property WHERE {
@@ -50,8 +59,13 @@ SELECT ?property WHERE {
 
 	foreach ($mandatoryProps as $prop) {
 		if(!$test->hasProperty($resource, $prop->property)){
-			echo "<li>".$prop->property."</li>\n";
+			$missing = true;
+			$return .= "<li>".$prop->property."</li>\n";
 		}        
+    }
+
+    if($missing){
+    	echo $return;
     }
 
 }

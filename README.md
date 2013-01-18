@@ -1,6 +1,6 @@
 # HXL Validator 
 
-Simple API that validates any RDF for compliance with the **Humanitarian eXchange Language (HXL)** vocabulary (see [hxl.humanitarianresponse.info/ns/](http://hxl.humanitarianresponse.info/ns/)). The [HXL project](https://sites.google.com/site/hxlproject/) is an initiative by the [United Nations Office for the Coordination of Humanitarian Affairs](http://unocha.org/).
+Simple API that validates RDF in Turtle notation for compliance with the **Humanitarian eXchange Language (HXL)** vocabulary (see [hxl.humanitarianresponse.info/ns/](http://hxl.humanitarianresponse.info/ns/)). The [HXL project](https://sites.google.com/site/hxlproject/) is an initiative by the [United Nations Office for the Coordination of Humanitarian Affairs](http://unocha.org/).
 
 For now, the validator is limited to 
 - checking whether the posted RDF is syntactically correct
