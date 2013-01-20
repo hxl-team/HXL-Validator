@@ -46,10 +46,22 @@ try{
 
 // first find all types used in the data, so that we know what we have to take care of:
 $types = array();
+$missing = false;
+
+if($_GET["format"] == "json"){
+	$return = '"properties": [{';
+}else{
+	$return = '<div class="alert alert-error">';
+}
+
 foreach ($test->resourcesMatching('rdf:type') as $resource) {
 	$thisMissing = false;
 
-	$return = '<p>Missing mandatory properties for '.$resource.':</p>';
+	if($_GET["format"] == "json"){
+		$thisReturn = '"'.$resource.'": [';
+	}else{
+		$thisReturn = '<p>Missing mandatory properties for '.$resource.':</p>';
+	}
 
 	$mandatoryProps = sparqlQuery('
 SELECT ?property WHERE {
@@ -61,14 +73,48 @@ SELECT ?property WHERE {
 	foreach ($mandatoryProps as $prop) {
 		if(!$test->hasProperty($resource, $prop->property)){
 			$thisMissing = true;
-			$return .= "<li>".$prop->property."</li>\n";
+			$missing = true;
+			if($_GET["format"] == "json"){
+				$thisReturn .= '"'.$prop->property.'", ';
+			}else{
+				$thisReturn .= "<li>".$prop->property."</li>\n";
+			}			
 		}        
     }
 
-    if($thisMissing){
-    	echo $return;
+    if($_GET["format"] == "json"){
+    	// remove trailing comma, close array:
+    	$thisReturn = substr($thisReturn, 0, -2);
+    	$thisReturn .= '], ';
     }
 
+    if($thisMissing){
+    	$return .= $thisReturn;
+    }
+
+}
+if($_GET["format"] == "json"){
+	// remove trailing comma, close array:
+    $return = substr($return, 0, -2);
+	$return .= '}]}';
+}else{
+	$return .= '</div>';
+}
+
+if($missing){
+	if($_GET["format"] == "json"){
+		echo '{"message": "missing properties", 
+  '.$return.'
+';
+	}else{
+		echo $return;
+	}
+}else{
+	if($_GET["format"] == "json"){
+		echo '{"message": "okay"}
+';	}else{
+		echo '<div>HXL code is valid and complete.</div>';
+	}
 }
 
 
