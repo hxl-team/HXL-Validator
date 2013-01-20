@@ -60,7 +60,7 @@ foreach ($test->resourcesMatching('rdf:type') as $resource) {
 	if($_GET["format"] == "json"){
 		$thisReturn = '"'.$resource.'": [';
 	}else{
-		$thisReturn = '<p>Missing mandatory properties for '.$resource.':</p>';
+		$thisReturn = "<p>Missing mandatory properties for ".$resource.":</p><ul>\n";
 	}
 
 	$mandatoryProps = sparqlQuery('
@@ -77,7 +77,7 @@ SELECT ?property WHERE {
 			if($_GET["format"] == "json"){
 				$thisReturn .= '"'.$prop->property.'", ';
 			}else{
-				$thisReturn .= "<li>".$prop->property."</li>\n";
+				$thisReturn .= "<li><a href='".$prop->property."'>".$prop->property."</a></li>\n";
 			}			
 		}        
     }
@@ -86,6 +86,8 @@ SELECT ?property WHERE {
     	// remove trailing comma, close array:
     	$thisReturn = substr($thisReturn, 0, -2);
     	$thisReturn .= '], ';
+    }else{
+    	$thisReturn .= "</ul>\n";
     }
 
     if($thisMissing){
@@ -98,7 +100,7 @@ if($_GET["format"] == "json"){
     $return = substr($return, 0, -2);
 	$return .= '}]}';
 }else{
-	$return .= '</div>';
+	$return .= "</div>\n";
 }
 
 if($missing){
